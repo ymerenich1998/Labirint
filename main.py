@@ -11,9 +11,15 @@ class GameSprite(pygame.sprite.Sprite):
     self.rect = self.image.get_rect()
     self.rect.x = x
     self.rect.y = y
+    self.start_x = x
+    self.start_y = y
 
   def reset(self):
     win.blit(self.image, (self.rect.x, self.rect.y))
+
+  def reset_position(self):
+    self.rect.x = self.start_x
+    self.rect.y = self.start_y
 
 class Player(GameSprite):
   def update(self):
@@ -33,6 +39,7 @@ class Enemy(GameSprite):
     self.start = start
     self.end = end
     self.direction = "left"
+    self.init_x = x
 
   def update(self):
     if self.rect.x <= self.start:
@@ -44,6 +51,11 @@ class Enemy(GameSprite):
       self.rect.x -= self.speed
     else:
       self.rect.x += self.speed
+
+  def reset_position(self):
+    self.rect.x = self.start_x
+    self.rect.y = self.start_y
+    self.direction = "left"
 
 win_width = 700
 win_height = 500
@@ -61,17 +73,18 @@ pygame.mixer.music.play()
 kick = pygame.mixer.Sound("kick.ogg")
 money = pygame.mixer.Sound("money.ogg")
 
-player = Player("hero.png", 5, 5, 5)
+def create_objects():
+  player = Player("hero.png", 5, 5, 5)
+  enemies = pygame.sprite.Group()
+  enemies.add(
+    Enemy("cyborg.png", 2, win_width-100, win_height - 300, win_width-250, win_width-65),
+    Enemy("cyborg.png", 3, 200, 200, 100, 400),
+    Enemy("cyborg.png", 1, 400, 100, 300, 600)
+  )
+  treasure = GameSprite("treasure.png", 0, win_width-100, win_height - 100)
+  return player, enemies, treasure
 
-# Создаём группу врагов
-enemies = pygame.sprite.Group()
-enemies.add(
-  Enemy("cyborg.png", 2, win_width-100, win_height - 300, win_width-250, win_width-65),
-  Enemy("cyborg.png", 3, 200, 200, 100, 400),
-  Enemy("cyborg.png", 1, 400, 100, 300, 600)
-)
-
-treasure = GameSprite("treasure.png", 0, win_width-100, win_height - 100)
+player, enemies, treasure = create_objects()
 
 running = True
 finish = False
@@ -80,6 +93,10 @@ while running:
   for event in pygame.event.get():
     if event.type == pygame.QUIT:
       running = False
+    if event.type == pygame.KEYDOWN:
+      if finish and event.key == pygame.K_r:
+        player, enemies, treasure = create_objects()
+        finish = False
 
   if not finish:
     win.blit(bg, (0, 0))
@@ -92,6 +109,10 @@ while running:
       finish = True
       kick.play()
       sleep(1)
+  else:
+    font = pygame.font.SysFont("Arial", 48)
+    text = font.render("Натисніть R для рестарту", True, (255, 0, 0))
+    win.blit(text, (100, win_height // 2 - 50))
 
   pygame.display.flip()
 
