@@ -80,7 +80,7 @@ class Wall(pygame.sprite.Sprite):
     self.rect.x = x
     self.rect.y = y
   
-  def draw_wall(self):
+  def draw(self):
     win.blit(self.image, (self.rect.x, self.rect.y))
 
 win_width = 700
@@ -108,10 +108,14 @@ def create_objects():
     Enemy("cyborg.png", 1, 400, 100, 300, 600),
     Enemy("cyborg.png", 1, 400, 100, 42, 300, "up_down")
   )
+  walls = pygame.sprite.Group()
+  walls.add(
+    
+  )
   treasure = GameSprite("treasure.png", 0, win_width-100, win_height - 100)
-  return player, enemies, treasure
+  return player, enemies, treasure, walls
 
-player, enemies, treasure = create_objects()
+player, enemies, treasure, walls = create_objects()
 
 running = True
 finish = False
@@ -122,17 +126,22 @@ while running:
       running = False
     if event.type == pygame.KEYDOWN:
       if finish and event.key == pygame.K_r:
-        player, enemies, treasure = create_objects()
+        player, enemies, treasure, walls = create_objects()
         finish = False
 
   if not finish:
     win.blit(bg, (0, 0))
+    walls.draw(win)
     player.update()
     enemies.update()
     player.reset()
     enemies.draw(win)
     treasure.reset()
     if pygame.sprite.spritecollideany(player, enemies):
+      finish = True
+      kick.play()
+      sleep(1)
+    if pygame.sprite.spritecollideany(player, walls):
       finish = True
       kick.play()
       sleep(1)
