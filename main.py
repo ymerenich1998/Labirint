@@ -110,7 +110,10 @@ def create_objects():
   )
   walls = pygame.sprite.Group()
   walls.add(
-    
+    Wall(100, 100, 200, 10),  # Horizontal wall
+    Wall(100, 200, 10, 100),  # Vertical wall
+    Wall(300, 100, 10, 200),  # Vertical wall
+    Wall(400, 300, 200, 10),  # Horizontal wall
   )
   treasure = GameSprite("treasure.png", 0, win_width-100, win_height - 100)
   return player, enemies, treasure, walls
@@ -140,15 +143,23 @@ while running:
     if pygame.sprite.spritecollideany(player, enemies):
       finish = True
       kick.play()
-      sleep(1)
+      win.blit(bg, (0, 0))
+      font = pygame.font.SysFont("Arial", 48)
+      text = font.render("Ви програли!", True, (255, 0, 0))
+      win.blit(text, (win_width // 2 - 125, win_height // 2 - 50))
     if pygame.sprite.spritecollideany(player, walls):
+      player.reset_position()
+    if pygame.sprite.collide_rect(player, treasure):
       finish = True
-      kick.play()
-      sleep(1)
+      money.play()
+      win.blit(bg, (0, 0))
+      font = pygame.font.SysFont("Arial", 48)
+      text = font.render("Ви виграли!", True, (0, 255, 0))
+      win.blit(text, (win_width // 2 - 100, win_height // 2 - 50))
   else:
-    font = pygame.font.SysFont("Arial", 48)
+    font = pygame.font.SysFont("Arial", 32)
     text = font.render("Натисніть R для рестарту", True, (255, 0, 0))
-    win.blit(text, (100, win_height // 2 - 50))
+    win.blit(text, (200, win_height // 2 + 50))
 
   pygame.display.flip()
 
