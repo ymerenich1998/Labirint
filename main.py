@@ -71,14 +71,17 @@ class Enemy(GameSprite):
     self.rect.y = self.start_y
     self.direction = "left"
     
-class Wall(Sprite):
-  def __init__(self, x, y, width, height):
+class Wall(pygame.sprite.Sprite):
+  def __init__(self, x, y, width, height, color = (0, 0, 0)):
     super().__init__()
     self.image = pygame.Surface((width, height))
-    self.image.fill((0, 0, 0))  # Чорний колір для стіни
+    self.image.fill(color) 
     self.rect = self.image.get_rect()
     self.rect.x = x
     self.rect.y = y
+  
+  def draw_wall(self):
+    win.blit(self.image, (self.rect.x, self.rect.y))
 
 win_width = 700
 win_height = 500
