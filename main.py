@@ -34,28 +34,51 @@ class Player(GameSprite):
       self.rect.y += self.speed
 
 class Enemy(GameSprite):
-  def __init__(self, sprite_image, speed, x, y, start=0, end=700-65):
+  def __init__(self, sprite_image, speed, x, y, start=0, end=700-65, plane="left_right"):
+    'plane = "left_right" or "up_down"'
     super().__init__(sprite_image, speed, x, y)
     self.start = start
     self.end = end
-    self.direction = "left"
-    self.init_x = x
+    self.plane = plane
+    if plane=="left_right":self.direction = "left"
+    elif plane=="up_down":self.direction = "up"
+    else:print('''ERORR 'plane = "left_right" or "up_down"''');0/0
 
   def update(self):
-    if self.rect.x <= self.start:
-      self.direction = "right"
-    if self.rect.x >= self.end:
-      self.direction = "left"
+    if self.plane=="left_right":
+      if self.rect.x <= self.start:
+        self.direction = "right"
+      if self.rect.x >= self.end:
+        self.direction = "left"
 
-    if self.direction == "left":
-      self.rect.x -= self.speed
+      if self.direction == "left":
+        self.rect.x -= self.speed
+      else:
+        self.rect.x += self.speed
     else:
-      self.rect.x += self.speed
+      if self.rect.y <= self.start:
+        self.direction = "down"
+      if self.rect.y >= self.end:
+        self.direction = "up"
+
+      if self.direction == "up":
+        self.rect.y -= self.speed
+      else:
+        self.rect.y += self.speed
 
   def reset_position(self):
     self.rect.x = self.start_x
     self.rect.y = self.start_y
     self.direction = "left"
+    
+class Wall(Sprite):
+  def __init__(self, x, y, width, height):
+    super().__init__()
+    self.image = pygame.Surface((width, height))
+    self.image.fill((0, 0, 0))  # Чорний колір для стіни
+    self.rect = self.image.get_rect()
+    self.rect.x = x
+    self.rect.y = y
 
 win_width = 700
 win_height = 500
@@ -77,9 +100,10 @@ def create_objects():
   player = Player("hero.png", 5, 5, 5)
   enemies = pygame.sprite.Group()
   enemies.add(
-    Enemy("cyborg.png", 2, win_width-100, win_height - 300, win_width-250, win_width-65),
+    Enemy("cyborg.png", 2, win_width-100, win_height - 300, win_width-250, win_width-65, "left_right"),
     Enemy("cyborg.png", 3, 200, 200, 100, 400),
-    Enemy("cyborg.png", 1, 400, 100, 300, 600)
+    Enemy("cyborg.png", 1, 400, 100, 300, 600),
+    Enemy("cyborg.png", 1, 400, 100, 42, 300, "up_down")
   )
   treasure = GameSprite("treasure.png", 0, win_width-100, win_height - 100)
   return player, enemies, treasure
